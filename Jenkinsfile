@@ -3,7 +3,7 @@ pipeline {
     stages{
         stage("Clone Code"){
             steps{
-                git url: "https://github.com/Kruthika-10/Assignment.git", branch: "main"
+                git url: "", branch: "main"
             }
         }
         stage("Build and Test"){
@@ -11,19 +11,14 @@ pipeline {
                 sh "docker build . -t note-app-test-new"
             }
         }
-        stage("Deploy to docker") {
-          steps {
-            withCredentials([
-              string(
-                credentialsId: "dockerHub",  // Jenkins Credential ID
-                variable: "dockerHubPass"       // Env variable to store the secret
-              )
-            ]) {
-            sh "deploy docker"
-                echo "dockerHubPass is set (but not printed in logs)"
-            
+        stage("Push to Docker Hub"){
+            steps{
+                withCredentials([usernamePassword(credentialsId:"dockerHub",passwordVariable:"dockerHubPass",usernameVariable:"dockerHubUser")]){
+                sh "docker tag note-app-test-new ${env.dockerHubUser}/note-app-test-new:latest"
+                sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPass}"
+                sh "docker push ${env.dockerHubUser}/note-app-test-new:latest"
+                }
             }
-          }
         }
         stage("Deploy"){
             steps{
