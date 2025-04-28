@@ -1,0 +1,34 @@
+pipeline {
+    agent any
+    stages{
+        stage("Clone Code"){
+            steps{
+                git url: "https://github.com/Kruthika-10/Assignment.git", branch: "main"
+            }
+        }
+        stage("Build and Test"){
+            steps{
+                sh "docker build . -t note-app-test-new"
+            }
+        }
+        stage("Deploy to docker") {
+          steps {
+            withCredentials([
+              string(
+                credentialsId: "dockerHub",  // Jenkins Credential ID
+                variable: "dockerHubPass"       // Env variable to store the secret
+              )
+            ]) {
+            sh "deploy docker"
+                echo "dockerHubPass is set (but not printed in logs)"
+            
+            }
+          }
+        }
+        stage("Deploy"){
+            steps{
+                sh "docker-compose down && docker-compose up -d"
+            }
+        }
+    }
+}
