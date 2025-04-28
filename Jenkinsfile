@@ -3,7 +3,7 @@ pipeline {
     stages{
         stage("Clone Code"){
             steps{
-                git url: "", branch: "main"
+                git url: "https://github.com/Kruthika-10/Assignment.git", branch: "main"
             }
         }
         stage("Build and Test"){
